@@ -102,6 +102,76 @@ img { max-width: 100%; height: auto; }
 
 .card-compact { padding: 1.25rem; }
 
+.console-card {
+  background: var(--bg-card);
+  border: 1px solid #818cf8;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-card);
+}
+
+.console-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 0.75rem;
+}
+
+.console-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  background: rgba(99,102,241,0.15);
+  color: #6366f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.console-card-desc {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 0.875rem;
+}
+
+.console-card-desc code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.8125rem;
+  color: #6366f1;
+}
+
+.console-steps {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0 0 0.875rem;
+  padding-left: 1.25rem;
+}
+
+.console-cmd {
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.75rem 0.875rem;
+  margin: 0;
+  overflow-x: auto;
+}
+
+.console-cmd code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.8125rem;
+  color: var(--text);
+  white-space: pre;
+}
+
+@media (prefers-color-scheme: dark) {
+  .console-card { border-color: #312e81; }
+  .console-icon { color: #818cf8; }
+  .console-card-desc code { color: #818cf8; }
+}
+
 .card + .card,
 .card-group > * + * { margin-top: 1.5rem; }
 
@@ -230,14 +300,10 @@ img { max-width: 100%; height: auto; }
 
 .link-teal { color: #0d9488; transition: color 0.15s; }
 .link-teal:hover { color: #14b8a6; }
-.link-purple { color: #9333ea; transition: color 0.15s; }
-.link-purple:hover { color: #a855f7; }
 
 @media (prefers-color-scheme: dark) {
   .link-teal { color: #2dd4bf; }
   .link-teal:hover { color: #5eead4; }
-  .link-purple { color: #c084fc; }
-  .link-purple:hover { color: #d8b4fe; }
 }
 
 .inline-link {
@@ -1081,124 +1147,8 @@ img { max-width: 100%; height: auto; }
 .fade-slide-start { opacity: 0; transform: translateX(1rem); }
 .fade-slide-end { opacity: 1; transform: translateX(0); }
 
-.tui-body {
-  background: #0a0a0a;
-  color: #e5e5e5;
-  overflow: hidden;
-}
-
-.tui-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #262626;
-}
-
-.tui-logo-section {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.tui-logo { height: 1.5rem; }
-
-.tui-label {
-  color: #737373;
-  font-size: 0.875rem;
-}
-
-.tui-status {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-}
-
-.status-dot {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-}
-
-.status-dot-yellow { background: #eab308; }
 .status-dot-green { background: #22c55e; }
 .status-dot-red { background: #ef4444; }
-
-.status-text { color: #a3a3a3; }
-
-.tui-loading-overlay {
-  position: absolute;
-  inset: 0;
-  top: 56px;
-  background: #0a0a0a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 40;
-}
-
-.tui-loading-text {
-  color: #a3a3a3;
-  font-size: 0.875rem;
-}
-
-.tui-spinner {
-  width: 2rem;
-  height: 2rem;
-  border: 2px solid #404040;
-  border-top-color: #a855f7;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-.tui-error-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(10,10,10,0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 50;
-}
-
-.tui-error-card {
-  background: #171717;
-  border: 1px solid #262626;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  max-width: 28rem;
-  margin: 0 1rem;
-  text-align: center;
-}
-
-.tui-error-title {
-  color: #f87171;
-  font-size: 1.125rem;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-}
-
-.tui-error-msg {
-  color: #a3a3a3;
-  font-size: 0.875rem;
-  margin-bottom: 1rem;
-}
-
-.tui-reconnect-btn {
-  background: #dc2626;
-  color: #fff;
-  border: none;
-  border-radius: 0.375rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-family: var(--font-sans);
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.15s;
-}
-.tui-reconnect-btn:hover { background: #b91c1c; }
 
 .log-autoscroll-toggle {
   display: inline-flex;

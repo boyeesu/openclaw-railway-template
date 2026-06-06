@@ -8,6 +8,5 @@ services:
       - SETUP_PASSWORD=test
       - OPENCLAW_STATE_DIR=/data/.openclaw
       - OPENCLAW_WORKSPACE_DIR=/data/workspace
-      - ENABLE_WEB_TUI=true
     volumes:
       - ./.tmpdata:/data
