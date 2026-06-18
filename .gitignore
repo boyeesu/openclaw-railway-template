@@ -14,6 +14,14 @@ npm-debug.log*
 # OS
 .DS_Store
 
+# OAuth secrets & tokens — never commit
+tokens.json
+client_secret*.json
+*.token
+gws-credentials/
+token.json
+oauth-client.json
+
 .claude/
 .serena/
 .tmpdata/
