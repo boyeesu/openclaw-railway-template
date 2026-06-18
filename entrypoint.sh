@@ -21,4 +21,7 @@ install -d -o openclaw -g openclaw /home/openclaw/.openclaw
 ln -sfn /data/gws-credentials /home/openclaw/.openclaw/credentials
 chown -h openclaw:openclaw /home/openclaw/.openclaw/credentials
 
-exec gosu openclaw node src/server.js
+# Run the gateway with the openclaw user's real HOME (not the inherited /root).
+# Skills resolve credential paths via Path.home(); without this they look in
+# /root/.openclaw (unreadable by the openclaw user) and report "no access".
+exec gosu openclaw env HOME=/home/openclaw node src/server.js
