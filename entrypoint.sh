@@ -46,6 +46,14 @@ if [ -f /data/.git-credentials ]; then
   gosu openclaw env HOME=/home/openclaw git config --global advice.detachedHead false
 fi
 
+# Persist the PollyReach skill token across redeploys (Rachael's phone skill).
+# The scripts read ~/.config/PollyReach/key.json (= /home/openclaw, ephemeral),
+# so keep the token on the /data volume and symlink the dir back on boot.
+install -d -o openclaw -g openclaw -m 700 /data/pollyreach
+install -d -o openclaw -g openclaw /home/openclaw/.config
+ln -sfn /data/pollyreach /home/openclaw/.config/PollyReach
+chown -h openclaw:openclaw /home/openclaw/.config/PollyReach
+
 # Run the gateway with the openclaw user's real HOME (not the inherited /root).
 # Skills resolve credential paths via Path.home(); without this they look in
 # /root/.openclaw (unreadable by the openclaw user) and report "no access".
