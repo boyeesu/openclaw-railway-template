@@ -11,6 +11,8 @@ RUN apt-get update \
     python3.11-venv \
     tini \
     build-essential \
+    jq \
+    bc \
     zip \
     unzip \
   && rm -rf /var/lib/apt/lists/*
