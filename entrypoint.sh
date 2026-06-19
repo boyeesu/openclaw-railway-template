@@ -30,6 +30,22 @@ if [ -d /data/.openclaw/npm/projects ]; then
   chown -R root:root /data/.openclaw/npm/projects
 fi
 
+# Git identity + credentials for the senior-SWE agent (marcus) so it can
+# clone/commit/push/open PRs. The PAT itself lives in /data/.git-credentials
+# (on the volume, mode 600) — NOT in this file. /home/openclaw is ephemeral and
+# loses ~/.gitconfig on every redeploy, so re-point git at the volume creds here.
+if [ -f /data/.git-credentials ]; then
+  chown openclaw:openclaw /data/.git-credentials
+  chmod 600 /data/.git-credentials
+  gosu openclaw env HOME=/home/openclaw git config --global credential.helper "store --file=/data/.git-credentials"
+  gosu openclaw env HOME=/home/openclaw git config --global user.name "Marcus (OpenClaw SWE)"
+  gosu openclaw env HOME=/home/openclaw git config --global user.email "marcus@curacel.ai"
+  gosu openclaw env HOME=/home/openclaw git config --global --add safe.directory '*'
+  gosu openclaw env HOME=/home/openclaw git config --global core.pager cat
+  gosu openclaw env HOME=/home/openclaw git config --global init.defaultBranch main
+  gosu openclaw env HOME=/home/openclaw git config --global advice.detachedHead false
+fi
+
 # Run the gateway with the openclaw user's real HOME (not the inherited /root).
 # Skills resolve credential paths via Path.home(); without this they look in
 # /root/.openclaw (unreadable by the openclaw user) and report "no access".
