@@ -19,6 +19,11 @@ RUN apt-get update \
 
 RUN npm install -g openclaw@2026.6.1
 RUN npm install -g clawhub@latest
+# Railway CLI so the SWE agent (marcus) can pull deploy/build logs and run
+# service-level recovery (redeploy/restart) against the project it runs in.
+# Auth is non-interactive via the RAILWAY_TOKEN project-token env var (set as a
+# Railway variable — NOT baked into the image).
+RUN npm install -g @railway/cli@latest
 
 WORKDIR /app
 
