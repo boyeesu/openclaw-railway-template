@@ -24,6 +24,11 @@ RUN npm install -g clawhub@latest
 # Auth is non-interactive via the RAILWAY_TOKEN project-token env var (set as a
 # Railway variable — NOT baked into the image).
 RUN npm install -g @railway/cli@latest
+# Buffer CLI so the content agent (Rachael) can schedule social posts reliably.
+# Auth is non-interactive via the BUFFER_API_KEY env var (set as a Railway
+# variable — NOT baked into the image). Usage is documented in the `buffer`
+# skill at /data/workspace/skills/buffer/SKILL.md.
+RUN npm install -g @bufferapp/cli@latest
 
 WORKDIR /app
 
