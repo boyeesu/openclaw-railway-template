@@ -30,6 +30,19 @@ RUN npm install -g @railway/cli@latest
 # skill at /data/workspace/skills/buffer/SKILL.md.
 RUN npm install -g @bufferapp/cli@latest
 
+# Renderer for the excalidraw-diagram skill (agents ailen + marcus): a Python
+# venv with Playwright + headless Chromium so the skill can render .excalidraw
+# JSON → PNG and run its visual validate loop. Chromium + its system libs are
+# baked into the image (Railway wipes runtime changes to / on redeploy; only
+# /data persists). PLAYWRIGHT_BROWSERS_PATH must be set here AND at runtime so
+# Playwright finds the baked browser; the skill's SKILL.md is patched to call
+# /opt/render-venv/bin/python directly (it does not use `uv`).
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers
+RUN python3 -m venv /opt/render-venv \
+  && /opt/render-venv/bin/pip install --no-cache-dir playwright \
+  && /opt/render-venv/bin/playwright install --with-deps chromium \
+  && chmod -R a+rX /opt/render-venv /opt/pw-browsers
+
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
