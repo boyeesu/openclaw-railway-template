@@ -17,7 +17,7 @@ RUN apt-get update \
     unzip \
   && rm -rf /var/lib/apt/lists/*
 
-RUN npm install -g openclaw@2026.6.1
+RUN npm install -g openclaw@2026.6.9
 RUN npm install -g clawhub@latest
 # Railway CLI so the SWE agent (marcus) can pull deploy/build logs and run
 # service-level recovery (redeploy/restart) against the project it runs in.
