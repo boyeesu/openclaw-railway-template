@@ -1717,6 +1717,82 @@ app.get("/setup/api/logs/stream", requireSetupAuth, (req, res) => {
   });
 });
 
+// --- Fireflies webhook → trigger Taiwo's transcript processing on demand ---
+// Fireflies POSTs here when a meeting transcript is ready. The /hooks/* prefix
+// is intentionally proxied to the gateway WITHOUT bearer injection (for the
+// gateway's own webhooks), so we authenticate this route ourselves via a secret
+// path segment. We ack immediately (Fireflies retries on slow/failed responses)
+// and run Taiwo's agent turn in the background. The prompt mirrors Taiwo's
+// processing logic and lives in a file so it can be edited without a redeploy.
+// We trigger via `agent` (not `cron run`): the wrapper's gateway device has the
+// agent scope but not the operator scope cron execution requires.
+const FIREFLIES_WEBHOOK_SECRET = process.env.FIREFLIES_WEBHOOK_SECRET?.trim();
+const FIREFLIES_WEBHOOK_PROMPT_FILE =
+  process.env.FIREFLIES_WEBHOOK_PROMPT_FILE?.trim() ||
+  path.join(STATE_DIR, "fireflies-webhook-prompt.txt");
+const FIREFLIES_WEBHOOK_DEBOUNCE_MS = 60_000;
+let firefliesWebhookLastRun = 0;
+
+function timingSafeEqualStr(a, b) {
+  const ab = Buffer.from(String(a));
+  const bb = Buffer.from(String(b));
+  if (ab.length !== bb.length) return false;
+  return crypto.timingSafeEqual(ab, bb);
+}
+
+app.post("/hooks/fireflies/:secret", (req, res) => {
+  if (!FIREFLIES_WEBHOOK_SECRET) {
+    log.warn("fireflies", "webhook called but FIREFLIES_WEBHOOK_SECRET is unset");
+    return res.status(503).json({ ok: false, error: "webhook not configured" });
+  }
+  if (!timingSafeEqualStr(req.params.secret, FIREFLIES_WEBHOOK_SECRET)) {
+    return res.status(403).json({ ok: false, error: "forbidden" });
+  }
+
+  // Ack fast, then do the work out of band.
+  res.status(202).json({ ok: true });
+
+  const meetingId =
+    req.body?.meetingId || req.body?.meeting_id || req.body?.id || "unknown";
+
+  const now = Date.now();
+  if (now - firefliesWebhookLastRun < FIREFLIES_WEBHOOK_DEBOUNCE_MS) {
+    log.info("fireflies", `webhook debounced (meetingId=${meetingId})`);
+    return;
+  }
+  firefliesWebhookLastRun = now;
+
+  let prompt;
+  try {
+    prompt = fs.readFileSync(FIREFLIES_WEBHOOK_PROMPT_FILE, "utf8");
+  } catch (err) {
+    log.error(
+      "fireflies",
+      `cannot read prompt file ${FIREFLIES_WEBHOOK_PROMPT_FILE}: ${err.message}`,
+    );
+    return;
+  }
+
+  log.info(
+    "fireflies",
+    `webhook received (meetingId=${meetingId}); running Taiwo transcript turn`,
+  );
+  runCmd(
+    OPENCLAW_NODE,
+    clawArgs([
+      "agent",
+      "--session-key",
+      "agent:taiwo:fireflies-webhook",
+      "-m",
+      prompt,
+    ]),
+  )
+    .then((r) => log.info("fireflies", `taiwo transcript turn exit=${r.code}`))
+    .catch((err) =>
+      log.error("fireflies", `taiwo transcript turn failed: ${err.message}`),
+    );
+});
+
 const proxy = httpProxy.createProxyServer({
   target: GATEWAY_TARGET,
   ws: true,
