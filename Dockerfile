@@ -29,7 +29,7 @@ RUN apt-get update \
 RUN python3 -m pip install --break-system-packages --no-cache-dir \
     google-api-python-client google-auth google-auth-oauthlib google-auth-httplib2
 
-RUN npm install -g openclaw@2026.6.9
+RUN npm install -g openclaw@2026.6.10
 RUN npm install -g clawhub@latest
 # Railway CLI so the SWE agent (marcus) can pull deploy/build logs and run
 # service-level recovery (redeploy/restart) against the project it runs in.
