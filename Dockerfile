@@ -9,6 +9,7 @@ RUN apt-get update \
     procps \
     python3 \
     python3.11-venv \
+    python3-pip \
     tini \
     build-essential \
     jq \
@@ -16,6 +17,17 @@ RUN apt-get update \
     zip \
     unzip \
   && rm -rf /var/lib/apt/lists/*
+
+# The google-workspace skill (Rachael/Ailen) documents every command as bare
+# `python3 scripts/google_tools.py ...` (SKILL.md + references/commands.md), so
+# the agent invokes the SYSTEM python3 — not the skill's venv. Install the Google
+# client libs into the system interpreter so those documented commands work.
+# Baked here (not via entrypoint/PYTHONPATH) so it survives redeploys AND clawhub
+# skill reinstalls, which would overwrite any in-skill doc/path patch.
+# --break-system-packages: Debian's python3 is externally-managed; nothing
+# Google-related exists in system site-packages, so there's no conflict.
+RUN python3 -m pip install --break-system-packages --no-cache-dir \
+    google-api-python-client google-auth google-auth-oauthlib google-auth-httplib2
 
 RUN npm install -g openclaw@2026.6.9
 RUN npm install -g clawhub@latest
