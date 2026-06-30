@@ -42,6 +42,23 @@ RUN npm install -g @railway/cli@latest
 # skill at /data/workspace/skills/buffer/SKILL.md.
 RUN npm install -g @bufferapp/cli@latest
 
+# Pre-bake the npx-launched MCP server packages so the gateway does NOT fork a
+# per-server npm/npx download subprocess-tree at every boot. Without this, ~9
+# MCP servers (5 brevo + fireflies via mcp-remote, plus postgres/github/jira)
+# all `npx -y <pkg>` SIMULTANEOUSLY at startup; on this small container that
+# thundering herd of forks blows the PID/fork limit → `spawn /bin/sh EAGAIN`,
+# which then knocks out the HEALTHY headhonta-db Postgres MCP and makes every
+# agent report "DB not reachable" (incident 2026-06-30). The mcp.servers config
+# still uses `npx -y <pkg>`; npx transparently reuses these global installs
+# (verified: offline, no _npx cache, ~0.5s), so no config change is needed and
+# the long-standing "npx re-downloads every redeploy" cost disappears too.
+# Versions pinned to what was resolved & working on 2026-06-30.
+RUN npm install -g \
+    mcp-remote@0.1.38 \
+    @modelcontextprotocol/server-postgres@0.6.2 \
+    @modelcontextprotocol/server-github@2025.4.8 \
+    @aashari/mcp-server-atlassian-jira@3.3.0
+
 # Renderer for the excalidraw-diagram skill (agents ailen + marcus): a Python
 # venv with Playwright + headless Chromium so the skill can render .excalidraw
 # JSON → PNG and run its visual validate loop. Chromium + its system libs are
